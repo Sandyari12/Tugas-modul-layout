@@ -6,7 +6,7 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.blue[900],
+        backgroundColor: Color(0xFF1A237E), // Warna header disamakan dengan login page
         title: Text(
           "Koperasi Undiksha",
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
