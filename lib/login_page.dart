@@ -1,11 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'home_page.dart';
+import 'providers/user_provider.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
 
+  static const String allowedNIM = "2315091017";
+  static const String allowedNama = "Kadek Sandyari Desy";
+  static const String allowedEmail = "sandyari@student.undiksha.ac.id";
+
   @override
   Widget build(BuildContext context) {
+    final TextEditingController _usernameController = TextEditingController();
+    final TextEditingController _passwordController = TextEditingController();
+
+    Future<void> _handleLogin(BuildContext context) async {
+      String username = _usernameController.text.trim();
+      String password = _passwordController.text.trim();
+
+      if (username == allowedNIM && password == allowedNIM) {
+        // Simpan status login
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('nim', allowedNIM);
+        await prefs.setString('nama', allowedNama);
+        await prefs.setString('email', allowedEmail);
+
+        // Update provider
+        Provider.of<UserProvider>(context, listen: false).login(
+          nim: allowedNIM,
+          nama: allowedNama,
+          email: allowedEmail,
+        );
+
+        // Navigate ke home
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Username atau password salah')),
+        );
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -24,11 +62,9 @@ class LoginPage extends StatelessWidget {
             children: [
               Image.asset('assets/logo_undiksha.png', width: 120, height: 120),
               const SizedBox(height: 30),
-
-              // FORM LOGIN + LINK DAFTAR DAN LUPA PASSWORD
               Container(
                 padding: const EdgeInsets.all(16),
-                width: 300, // Mengatur lebar keseluruhan form login
+                width: 300,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
@@ -43,10 +79,10 @@ class LoginPage extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    // Kotak Username diperkecil
                     SizedBox(
-                      width: 250, // Lebar lebih kecil
+                      width: 250,
                       child: TextField(
+                        controller: _usernameController,
                         decoration: InputDecoration(
                           labelText: 'Username',
                           contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -57,11 +93,10 @@ class LoginPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-
-                    // Kotak Password diperkecil
                     SizedBox(
-                      width: 250, // Lebar lebih kecil
+                      width: 250,
                       child: TextField(
+                        controller: _passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           labelText: 'Password',
@@ -73,32 +108,25 @@ class LoginPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // Tombol Login
                     SizedBox(
-                    width: 200, // Lebar lebih kecil
-                    child: ElevatedButton(
-                    onPressed: () {
-                    Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomePage()),
-                    );
-                    },
-                    style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1A237E), // Warna tombol
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      width: 200,
+                      child: ElevatedButton(
+                        onPressed: () => _handleLogin(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1A237E),
+                          foregroundColor: Colors.white,
+                          disabledForegroundColor: Colors.white70,
+                          disabledBackgroundColor: Color(0xFF1A237E).withOpacity(0.5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          elevation: 6,
+                          shadowColor: Colors.grey,
+                        ),
+                        child: const Text('Login', style: TextStyle(color: Colors.white)),
+                      ),
                     ),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      elevation: 6, // Tinggi bayangan
-                      shadowColor: Colors.grey, // Warna bayangan abu-abu
-                    ),
-                    child: const Text('Login', style: TextStyle(color: Colors.white)),
-                    ),
-                    ),
-
-
-                    // Link Daftar Mbanking & Lupa Password
                     SizedBox(
                       width: double.infinity,
                       child: Row(
@@ -130,10 +158,7 @@ class LoginPage extends StatelessWidget {
                   ],
                 ),
               ),
-
-              const SizedBox(height: 40), // Tambah jarak dengan copyright
-
-              // FOOTER COPYRIGHT
+              const SizedBox(height: 40),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(10),
